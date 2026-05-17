@@ -15,40 +15,40 @@ Using the functional paradigm avoids loops and updating of variables that could 
 
 To structure this correctly, we will have a way to receive values, a way to parse through those values, a way to test them (the main function), and a way for the user to input values.
 
-It is also important to understand the arithmetic involved. Down below is a visual representation of how this can be solved by hand. Important to note that this is largely based on brute force of choosing and discarding values in order for both equations to be true. BOTH must be true in order for the set of values to work.
+It is also important to understand the arithmetic involved. Down below is a visual representation of how this can be solved by hand. Important to note that this is largely based on brute force of choosing and discarding values in order for both equations to be true. BOTH must be true in order for the set of values to work.<br/>
+<br/>
+
+<img width="992" height="425" alt="m1_arith" src="https://github.com/user-attachments/assets/661c8430-6c1b-4e03-95a0-e2ecd9da5ab2" /><br/>
 
 
+ Using the values provided by the ICPC example, we can corroborate that the set of values do indeed work. Other examples are provided of finding more sets of values that would work.<br/>
+<br/>
 
- Using the values provided by the ICPC example, we can corroborate that the set of values do indeed work. Other examples are provided of finding more sets of values that would work.
-
-
-
-
-
-
-Also provided is an example of how the arithmetic proves a set of values does not work. Notice how one of the equations is not true.
+<img width="1094" height="307" alt="m2_arith" src="https://github.com/user-attachments/assets/fbe81e70-97ee-4ab5-b05a-12ef9e783c9c" /> <br/>
+<img width="1247" height="316" alt="m3_arith" src="https://github.com/user-attachments/assets/612c3f5d-55a2-47a4-9f23-c6f9dfd3aa89" />
 
 
+Also provided is an example of how the arithmetic proves a set of values does not work. Notice how one of the equations is not true.<br/>
+<br/>
+
+<img width="932" height="370" alt="m4_arith" src="https://github.com/user-attachments/assets/b58f9cca-b683-4e7c-8a05-1f6ea106c1d1" /><br/>
 
 
-
-## Implementation:
-
+## Implementation
 Functional programming is commonly implemented in Racket through lambda calculus, so I will be using Racket to implement the solution considering this is a straightforward mathematical process. 
 
 Lambda calculus “is based on function abstraction, to generalise expressions through the introduction of names, and function application, to evaluate generalised expressions by giving names particular values” (Michaelson, n.d.). This essentially allows us to declare an abstract function without having to define it separately. For example, align is the function that will be executed when called and instead of defining the modulus function before align with a different name, it can be declared within the definition of align. 
 
 ### Racket implementation
-Within the program, I define <i>align</i> which essentially validates that the sun or moon are aligned at x year, this is by using the modulus operator, which must be equal to 0. Reminder the modulus operator is used to find the remainder, in this case the remainder must be 0.  The declaration of lambda allows me to input various arguments and define the modulus function. Without the lambda declaration, Racket interprets the code as giving multiple arguments (as if align was receiving the expression as another variable). 
+Within the program, I define <i>align</i> which essentially validates that the sun or moon are aligned at x year, this is by using the modulus operator, which must be equal to 0. Reminder the modulus operator is used to find the remainder, in this case the remainder must be 0.  The declaration of lambda allows me to input various arguments and define the modulus function. Without the lambda declaration, Racket interprets the code as giving multiple arguments (as if align was receiving the expression as another variable). <br/>
+<br/>
 
+<img width="383" height="79" alt="implement1" src="https://github.com/user-attachments/assets/b3f261cf-469c-4458-b8e2-38cbf096015f" /> <br/>
 
+This is followed up by the definition of the function <i>eclipse</i> where it receives the entire set of values (which have been established in the models section) to verify that both the sun and moon are aligned at x year. Once again, notice the lambda declaration which allows the modulus to be implemented when align is recalled with the new set of variables (x ds ys dm ym). The <i>and</i> makes sure to return true if and only if both the sun and moon are aligned at x year (Flatt & Findler, 2025). Otherwise, false will be returned.<br/>
+<br/>
 
-
-This is followed up by the definition of the function <i>eclipse</i> where it receives the entire set of values (which have been established in the models section) to verify that both the sun and moon are aligned at x year. Once again, notice the lambda declaration which allows the modulus to be implemented when align is recalled with the new set of variables (x ds ys dm ym). The <i>and</i> makes sure to return true if and only if both the sun and moon are aligned at x year (Flatt & Findler, 2025). Otherwise, false will be returned.
-
-
-
-
+<img width="459" height="134" alt="implement2" src="https://github.com/user-attachments/assets/24532955-9c6e-40d3-be12-73e5f79810bc" /><br/>
 
 Since it is difficult to parse through possible solutions and return a value as one would with python or c++ in a regular solution, the functional paradigm allows us to work with conditional statements that will return boolean values. In this case, since this is an imperative paradigm there is more focus on establishing the exact flow, which is why there must be a correct x year given with the set of sun and moon values to get true.
 
@@ -56,11 +56,10 @@ Since it is difficult to parse through possible solutions and return a value as 
 ### Functional paradigm
 For the functional paradigm, it is implemented in Racket in the file <b>sunMoonFunctional.rkt</b>. Since the solution ended up being shorter and to save the complexities of Racket test files, the tests are within the racket file. Upon running the code, the terminal will display the result of the number sets.
 
-It is imperative the user has DrRacket installed or they will be unable to run the file. For more information, <a href = “https://racket-lang.org/” >this resource </a> will aid in the download. 
+It is imperative the user has DrRacket installed or they will be unable to run the file. For more information, <a href = “https://racket-lang.org/” >this resource </a> will aid in the download. <br/>
+<br/>
 
-
-
-
+<img width="322" height="204" alt="func_test" src="https://github.com/user-attachments/assets/35b9444f-5d9d-4a85-b273-95aa91296da7" /> <br/>
 
 Shown above, four sets of values should print out true and the final three sets should print out false. In the above model section, all correct value sets have been proven by hand, and one false set was proven by hand. The other false sets were randomly generated numbers.
 
@@ -73,34 +72,34 @@ For the second implementation, since I am using prolog, the user must consult th
 
 Remember that Res will continue to be a variable in all queries, but all other variables must have a number instead. Likewise, there is the <b>logic_test.pl</b> file which has a few tests similar to the functional solution tests. Instead of returning true or false, it should return the numerical value of Res, which represents the x year of when the eclipse will happen.
 
-## Analysis:
+## Analysis
 Regarding space and time complexity, both would be O(n). Since the modulus is run every time for every year, the time complexity would be O(n). These values are temporarily stored for every set that is parsed, therefore the space complexity is O(n). Since we are using the functional paradigm in Racket with recursion, conditionals, and booleans, concepts which are optimized, the time complexity is decent for using Racket to solve this problem.
 
 ### Second paradigm
 While we have used a functional paradigm, we can use a different approach to solve the same problem. In this case, I have chosen to compare a functional solution with a solution using logic in Prolog. While it is very similar, this paradigm allows a more declarative approach, in other words, we can “specify the problem's logic and let the system derive the solution (Edet, 2024, pp. 26–34). Within the solution, there are rules and constraints set down that will be followed in order to deduce the correct result upon the input of a query (Edet, 2024, pp. 26–34). 
 
 In this solution, align is declared as a rule where 0 must be the modulus in order to verify the sun and moon are aligned on x year. Reminder that Prolog takes variables with a starting capital letter. <br/>
+<br/>
 
-
-
-
+<img width="287" height="103" alt="logImp1" src="https://github.com/user-attachments/assets/7388b41d-b035-48d9-b3e3-0c4c3693e202" /> <br/>
 
 This is followed by the declaration of eclipse, with the rules that both the sun and moon must be aligned on x year depending on the year since and until that are given. <br/>
+<br/>
 
-
-
+<img width="378" height="133" alt="logImp2" src="https://github.com/user-attachments/assets/7842568f-a583-439e-9d14-cca33b044b32" /> <br/>
 
 
 From this, we can create a recursion with a base case. The base case states that when the x year given is indeed the correct result for when the sun and moon align for an eclipse, then no recursion is needed. Otherwise, if the x year given is not correct, the program will recall eclipse, which recalls align and increment x year by 1 until it reaches a correct x year. <br/>
+<br/>
 
-
-
- <br/>
+<img width="691" height="289" alt="logImp3" src="https://github.com/user-attachments/assets/8e1c0c41-28cc-44d3-918c-d2995acc9b16" /> <br/>
 
 To prove this, there are 2 queries made, one with the correct x year and the other with the incorrect x year. Both have the same result of 7.<br/>
+<br/>
 
+<img width="535" height="324" alt="log_test" src="https://github.com/user-attachments/assets/173513b2-1bf1-4e22-bc2e-f53e01e6eb02" /><br/>
 
-
+<img width="468" height="644" alt="log_test2" src="https://github.com/user-attachments/assets/09f5e889-310a-423b-82c7-3ab65fa7e2ac" /><br/>
 
 As clearly shown, the first query receives the exact data set the ICPC provides, which reaches the base case and does not have to recurse through the above declarations, but rather just verify. On the other hand, the incorrect input of x year has multiple iterations until it reaches the first correct year. For the sake of time and space, only part of the trace process will be shown for the second query.
 
