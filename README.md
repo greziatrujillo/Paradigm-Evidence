@@ -1,113 +1,169 @@
 # E3: Paradigm-Evidence, using different paradigms to solve one problem and compare the solutions. 
 
-
 ## Description
-For this project, I have looked into the ICPC North Central NA Regional Contest official problem set of 2023. I have chosen problem E: Sun and Moon. I chose this purely for the name of the problem. For context, this problem states that an eclipse is when the sun and moon are aligned at specific positions, where the number of years since the position and until the position are known for both the sun and moon. The solution must be when the next eclipse will be based on these details.
+For this project, I have chosen the “Shortest path in binary matrix” problem that I found on leetcode. For context, when given a grid that is <i>[nxn]</i> the solution will be the cells visited to get from the <b>top left</b> to the <b>bottom right</b> cells. It is important to note the movement can be left, down, right, up, and the diagonals (8 directions). The program must find the shortest path. The grid is made up of 0 and 1s, but it can only visit cells of 0 (we can assume cells with 1 are blocked). If there is no valid path, the program will return -1.
 
-The input receives integers <b>ds, ys, dm, ym</b> and results in an integer <b>x</b>.
+The input received is the makeup of the grid and the output is a single integer, which is the shortest path.
 
-The d variables represent how many years ago and the y variables represent how many years until the correct position. x is the output, otherwise the result of how many years until the next eclipse. 
-
-Using this context, I have come to the conclusion that using a functional paradigm would be best considering the transformation of data as it parses through the math to get the possible outcome. Functions will largely be used in the proposed solution, allowing lambda calculus to aid in the process.
+Using this context, I have decided to use a functional paradigm. There are multiple functions we would need to establish or add, such as directions, adjacency, limits, and path length among other things. All of these functions will stack on top of each other to work as one to get to the final solution. 
 
 ## Models
-Using the functional paradigm avoids loops and updating of variables that could cause confusion. Instead, we turn to recursion, where the function receives a new argument until it reaches the base case or solution. 
+To be able to properly construct this program, we must put together models to help us understand how this truly works. I will be showing visualizations of how the program could work and what possible functions would be working at the time of executing said step.</br>
+</br>
 
-To structure this correctly, we will have a way to receive values, a way to parse through those values, a way to test them (the main function), and a way for the user to input values.
+<img width="960" height="426" alt="funcM1" src="https://github.com/user-attachments/assets/54c6a581-77b5-4fe3-a63c-ac996a6728c7" />
 
-It is also important to understand the arithmetic involved. Down below is a visual representation of how this can be solved by hand. Important to note that this is largely based on brute force of choosing and discarding values in order for both equations to be true. BOTH must be true in order for the set of values to work.<br/>
-<br/>
+Let’s begin with a 4x4 grid, where we know the origin and the destination cell will be the same, but it is important to get some visualization. I have also blocked some cells at random to simulate cells of 1 which cannot be traversed. Since we start at the origin, one cell has been visited, meaning in this first step the length of the path so far is 1. Now we will look for all the other possible steps. 
 
-<img width="992" height="425" alt="m1_arith" src="https://github.com/user-attachments/assets/661c8430-6c1b-4e03-95a0-e2ecd9da5ab2" /><br/>
-
-
- Using the values provided by the ICPC example, we can corroborate that the set of values do indeed work. Other examples are provided of finding more sets of values that would work.<br/>
-<br/>
-
-<img width="1094" height="307" alt="m2_arith" src="https://github.com/user-attachments/assets/fbe81e70-97ee-4ab5-b05a-12ef9e783c9c" /> <br/>
-<img width="1247" height="316" alt="m3_arith" src="https://github.com/user-attachments/assets/612c3f5d-55a2-47a4-9f23-c6f9dfd3aa89" />
+Some functions I begin to think about are the actual creation of the grid, taking the grid size, and having positions as (r,c) which can later be accessed by other functions.
 
 
-Also provided is an example of how the arithmetic proves a set of values does not work. Notice how one of the equations is not true.<br/>
-<br/>
 
-<img width="932" height="370" alt="m4_arith" src="https://github.com/user-attachments/assets/b58f9cca-b683-4e7c-8a05-1f6ea106c1d1" /><br/>
+
+
+As shown above, the length is now 2 and there are 2 paths that can be taken. While the right step still has another open path, it will eventually lead to a dead end. Likewise, it will only add an extra step to the path, so we will immediately take the diagonal path. 
+
+Since we will begin searching for the next move, we have to find adjacent cells, access their position and value, and validate if it is within limits/ an open cell. 
+
+
+
+
+Once more, we check all the possible next steps. The top right leads to a dead end, so it will be discarded. The bottom left is a viable path, but will add to the length and eventually lead to the bottom right. Therefore, it is more viable to simply take the path through the bottom right. 
+
+At this point we have moved, so there has to be a function that allows movement and a way to know which direction we have moved. Also, we begin to have many steps (or many nodes at one level) so now we have to validate all of those as well. I will also be keeping a list of visited cells to avoid going backwards.
+
+
+
+
+
+
+When checking for all available options, there appear to be three. The bottom left leads to a dead end, so it will be discarded. The right just adds to the length, while the bottom right leads directly to the destination cell. Therefore, the diagonal right path will be taken. 
+
+
+
+
+
+This leaves us with the shortest path length of four with an ironic straight diagonal path. It is also important to have a counter or function for distance which increments at every cell visited. 
+
+With the process of these models, it is evident that many steps and components need to be taken into account during the process of the program. Not only are we looking at path length, but we are looking at blocked cells, available cells, and even available paths that are valid to the destination but might not be the shortest path. 
+
+This leads to the conclusion that breadth first search (BFS) would be useful, considering the data structure allows for every cell to be checked depending on the current cell and level we are at. Similar to a tree and its nodes. 
 
 
 ## Implementation
-Functional programming is commonly implemented in Racket through lambda calculus, so I will be using Racket to implement the solution considering this is a straightforward mathematical process. 
 
-Lambda calculus “is based on function abstraction, to generalise expressions through the introduction of names, and function application, to evaluate generalised expressions by giving names particular values” (Michaelson, n.d.). This essentially allows us to declare an abstract function without having to define it separately. For example, align is the function that will be executed when called and instead of defining the modulus function before align with a different name, it can be declared within the definition of align. 
+I will be using Racket to implement the solution as previously mentioned. There are a myriad of functions that are implemented, and as we move into more complex functions, the use of lambda becomes more apparent. 
+
+Lambda calculus “is based on function abstraction, to generalise expressions through the introduction of names, and function application, to evaluate generalised expressions by giving names particular values” (Michaelson, n.d.). This essentially allows us to declare an abstract function without having to define it separately. This is especially useful for whenever a function will be used once so as to conserve space, considering this program commonly implements functions that are used once within their parent functions.
 
 ### Racket implementation
-Within the program, I define <i>align</i> which essentially validates that the sun or moon are aligned at x year, this is by using the modulus operator, which must be equal to 0. Reminder the modulus operator is used to find the remainder, in this case the remainder must be 0.  The declaration of lambda allows me to input various arguments and define the modulus function. Without the lambda declaration, Racket interprets the code as giving multiple arguments (as if align was receiving the expression as another variable). <br/>
-<br/>
+There are many parts to this program, so I will break it down to aid in the explanation and understanding.
 
-<img width="383" height="79" alt="implement1" src="https://github.com/user-attachments/assets/b3f261cf-469c-4458-b8e2-38cbf096015f" /> <br/>
 
-This is followed up by the definition of the function <i>eclipse</i> where it receives the entire set of values (which have been established in the models section) to verify that both the sun and moon are aligned at x year. Once again, notice the lambda declaration which allows the modulus to be implemented when align is recalled with the new set of variables (x ds ys dm ym). The <i>and</i> makes sure to return true if and only if both the sun and moon are aligned at x year (Flatt & Findler, 2025). Otherwise, false will be returned.<br/>
-<br/>
 
-<img width="459" height="134" alt="implement2" src="https://github.com/user-attachments/assets/24532955-9c6e-40d3-be12-73e5f79810bc" /><br/>
 
-Since it is difficult to parse through possible solutions and return a value as one would with python or c++ in a regular solution, the functional paradigm allows us to work with conditional statements that will return boolean values. In this case, since this is an imperative paradigm there is more focus on establishing the exact flow, which is why there must be a correct x year given with the set of sun and moon values to get true.
+I started with defining the structure of the grids and their cells. The position will be (row, column), so it is important to define the first and second position correctly. This will allow us to access the cells on the grid.
+
+
+Up next, I defined the grid size n since the problem asks for a nxn grid, there is really only one measurement. I pass in the existing grid and get the length. Additionally, I define the bounds and limits of the grid. As we continue to move through the grid and find the next step, it is important to stop the program if the next step is outside the grid or if the cell is blocked. The row and column positions must be 0 or greater, since our origin is at 0, but must be less than n, the size of our grid. 
+
+
+
+Now that we have set up the bounds and identification of cells, we have to identify whether the cell is open or blocked. This is done by figuring out if the cell has a value of 0 or 1. Notice we have only been able to get the position of the cell, so now I have created a helper function to get the value of the cell depending on the position we are in. Using the list-ref operation from racket, we can return the element of the given position. This is then used to verify if the cell is a valid position, by not only checking if it is within bounds, but if it is equal to 0, meaning it is an open cell. 
+
+
+
+The problem tells us that movements are 8-directional, meaning that it can go (in terms of compass directions to understand better) north, south, west, east, northeast, northwest, southeast, southwest. So, I decided to create directions before I forget in order to have values to reference from, allowing to move positions. Depending on the direction we are moving, we add, subtract or keep the same row and/or column. For example, (-1 -1) we move left and up which is a diagonal, while something like (0 1) is staying in the same row but moving to the right column. This does not actually move the position, so I created a function that takes those directions and depending on the position, will add the direction values to actually move to the new position. We use list to combine the two separate values we get for row and column into our position (r, c). 
+
+
+Up next, we have to find the adjacent cells. Notice we start to use lambda, since map takes in two values and various functions have to be performed before we can get a value. The first part takes in all directions and applies them to the move function to get the next positions. These are all possible next positions. Next, we have to discard any cells that are not valid, whether they are out of bounds or blocked to keep only the valid adjacent cells to the current position. This is why we use the filter operation. Again, since it receives a condition to filter from a list, we once again implement a lambda to generate the condition while keeping valid positions of the generated adjacent cells (since it is possible not all the next cells are valid). 
+
+This function would produce the adjacent cells at one position, and it could return many values. All these would have to be explored. To keep with the BFS standard of exploring at levels, I made the expand function, which is similar to neighbors but takes in multiple positions. Since this would return some type of matrix, I use apply append to be able to get a large list and not multiple lists in one list. 
+
+
+
+The generation of adjacent cells and the valid next cells will produce previously visited cells, so I implemented a function to shave off cells that have already been visited by using a filter that keeps cells that are not members of the visited list. 
+
+
+Finally, using all the helper functions put together, I can finally construct the actual bfs function, which would allow for the actual parsing of the grid to get the final distance. This puts into action all the previously created functions to achieve a search through recursion. The first base case is when the next expansion includes the destination cell, so we just return the distance. The next base case is if there is no viable path and the destination is unreachable, which is where -1 will be returned. 
+
+Lastly, if the base cases are not reached yet, the search will continue recursively. The program will continue to expand into the adjacent cells, remove already visited cells and add them to the existing visited list, all while adding to the distance and awaiting the destination cell. 
+
+
+Finally, in order to avoid running the bfs function and inserting all the parameters it asks for, we create a smaller function that wraps everything up. This function is the final function to get the distance from the origin to the destination in a given grid. The problem tells us that while the grid is nxn, the destination will be n-1xn-1 (bottom right corner cell). Since we are calling in the bfs function, we have to give it starting data, which is the origin at the grid and a distance of 1 (starting at the origin means one cell has already been visited). Also, I made sure to establish that if there is no valid next step after the origin OR there is no valid position to the destination, -1 will be returned. 
+
+Obviously a much simpler implementation would be in python or c++ using a queue, but this demonstrates that a pathfinding solution is possible with racket and a functional construct.
+
+### Logic paradigm
+For the second implementation, I am using a logic paradigm with Prolog. The differences will be explained in further detail down below, but it is important to note that due to the structure of Prolog, instead of implementing a BFS solution, it will be easier to implement a DFS solution. Prolog will search for all possible paths before backtracking and finding the solution, which is similar to how DFS searches all the children of a node before backtracking and looking at other nodes. 
+
+
+Using the 3x3 grid example, I created an automata where the states are the cell positions and the transitions are valid cells (must be 0). The reason I did not include any cell states with transitions of 1 is because they would be considered dead states, and while they would help define invalid positions and invalid paths, it does not change that these states would just be hanging there. Also, notice how q1 jumps to q3, and that is because while there is a consecutive path, the shortest path would be that diagonal direction which cuts out an extra cell.
+
+
+
+
+As we begin to see in the Prolog implementation, we have to define the grid not only with its positions, but the values in those positions as well. 
+
+
+
+Similar to racket, we must define the 8 possible directions in which the path can move. 
+
+
+I also created the conditions of the adjacent cells that must be validated as available cells. These will be passed into the recursive function to allow the program to know that these conditions must be met as it creates the path. Upon searching for neighboring cells, it takes the directions established above and adds them to the original position. That new position is validated to see if it's an open cell.
+
+
+
+Now, we can recursively search for the correct path. The base case is when the current cell is the destination cell, so now we have a path and the visited list is not very important anymore. Otherwise, the program will continue to search by checking that the cell we will move to is a valid adjacent cell and that it is not a member of the visited list. If true to these conditions, the path will continue building up.
+
+
+
+Finally, the previous function will give us the path, but not the distance, so we wrap it up with a simple length operator. Upon consulting this result, we get the shortest path, which is 4 as previously proven to us. 
 
 ## Tests
 ### Functional paradigm
-For the functional paradigm, it is implemented in Racket in the file <b>sunMoonFunctional.rkt</b>. Since the solution ended up being shorter and to save the complexities of Racket test files, the tests are within the racket file. Upon running the code, the terminal will display the result of the number sets.
+As the program was being developed, tests for different functions were run to verify that they were working correctly. At the end of the file, there are some test functions with the test grids inserted from the examples on Leetcode and one I have created myself.  
 
-It is imperative the user has DrRacket installed or they will be unable to run the file. For more information, <a href = “https://racket-lang.org/” >this resource </a> will aid in the download. <br/>
-<br/>
 
-<img width="322" height="204" alt="func_test" src="https://github.com/user-attachments/assets/35b9444f-5d9d-4a85-b273-95aa91296da7" /> <br/>
 
-Shown above, four sets of values should print out true and the final three sets should print out false. In the above model section, all correct value sets have been proven by hand, and one false set was proven by hand. The other false sets were randomly generated numbers.
 
-The only truth set not proven by hand was <b>(eclipse 1 2 3 4 5)</b> which was a random test that coincidentally gave true. For sake of amusement I kept it. 
 
-### Other paradigm
-For the second implementation, since I am using prolog, the user must consult the sunMoonLogic.pl file into the designated prolog terminal. Once the file has been loaded and the message true. is received, you can begin testing out with the following query:<br/>
+Upon running the code, the terminal will display the results. Only the final grid should return -1.
 
-<b> search(X, Ds, Ys, Dm, Ym, Res). </b><br/>
+It is important the user has DrRacket installed or they will be unable to run the file. For more information, <a href = “https://racket-lang.org/” >this resource </a> will aid in the download. 
 
-Remember that Res will continue to be a variable in all queries, but all other variables must have a number instead. Likewise, there is the <b>logic_test.pl</b> file which has a few tests similar to the functional solution tests. Instead of returning true or false, it should return the numerical value of Res, which represents the x year of when the eclipse will happen.
 
-## Analysis
-Regarding space and time complexity, both would be O(n). Since the modulus is run every time for every year, the time complexity would be O(n). These values are temporarily stored for every set that is parsed, therefore the space complexity is O(n). Since we are using the functional paradigm in Racket with recursion, conditionals, and booleans, concepts which are optimized, the time complexity is decent for using Racket to solve this problem.
+
+Shown above, the first two values are the distance for their respective graphs. As shown, the final graph prints out a -1 since the destination is unreachable.
+
+###Logic paradigm tests
+Since we are keeping it to one grid implementation, we can run the following short tests:
+
+The base case is reached, where the origin is the same as the destination. This is obviously not meant to happen as an original input considering it is required to start at the top left (0,0).
+
+
+The recursive case where the path is achieved from origin to destination.
+
+
+A case where the destination is unreachable.
+
+
+
+## Análisis:
+The implementation of the solution in racket ends up being O(n^2) for both time and space complexity since the grid is nxn. In the worst case scenario it could potentially reach a time complexity of O(n^4) since it will end up checking the visited list possibly many times depending on the size of the grid and the times recursion recalls respective functions.
 
 ### Second paradigm
-While we have used a functional paradigm, we can use a different approach to solve the same problem. In this case, I have chosen to compare a functional solution with a solution using logic in Prolog. While it is very similar, this paradigm allows a more declarative approach, in other words, we can “specify the problem's logic and let the system derive the solution (Edet, 2024, pp. 26–34). Within the solution, there are rules and constraints set down that will be followed in order to deduce the correct result upon the input of a query (Edet, 2024, pp. 26–34). 
+While I have used a functional paradigm, we can use a different approach to solve the same problem. In this case, I have chosen to compare a functional solution with a solution using logic in Prolog. While it is very similar, this paradigm allows a more declarative approach, in other words, we can “specify the problem's logic and let the system derive the solution (Edet, 2024, pp. 26–34). Within the solution, there are rules and constraints set down that will be followed in order to deduce the correct result upon the input of a query (Edet, 2024, pp. 26–34). 
 
-In this solution, align is declared as a rule where 0 must be the modulus in order to verify the sun and moon are aligned on x year. Reminder that Prolog takes variables with a starting capital letter. <br/>
-<br/>
+To further establish the difference, think of it this way: functional allows the visualization of the entire process of how to move across the grid. There are validations and functions set in place to be able to correctly reach the destination. All the helper functions, such as neighbors and valid_pos help the ultimate BFS function to be more explicit and easy to follow. 
 
-<img width="287" height="103" alt="logImp1" src="https://github.com/user-attachments/assets/7388b41d-b035-48d9-b3e3-0c4c3693e202" /> <br/>
+On the other hand, logic establishes the facts in order to understand the relationships between the cells. These are used in order to define valid positions, neighbors and paths (unlike functional that is defining the next step as it goes, logic continues on a path until it has to backtrack and find the final one). These conditions define a valid solution rather than the process to reach that valid solution.
 
-This is followed by the declaration of eclipse, with the rules that both the sun and moon must be aligned on x year depending on the year since and until that are given. <br/>
-<br/>
+Implemented in Prolog, instead of a BFS search, I put together a DFS. Where a BFS parses through the cells at levels, DFS searches through the depth of all the cells before having to backtrack. This tracks with the Prolog implementation, where the program will find all possible paths until it is not viable or the shortest, before it begins to backtrack to where it left off in a good spot and continue searching again.
 
-<img width="378" height="133" alt="logImp2" src="https://github.com/user-attachments/assets/7842568f-a583-439e-9d14-cca33b044b32" /> <br/>
+Also, in Prolog the fact has to show not only the row and column for the grid, but its value. Meanwhile, in Racket the program has to access the position and then the value from a list structure. Due to Prolog allowing for backtracking, the program would be able to explore the possible paths since it does not have the explicit control established in the functional solution.
 
-
-From this, we can create a recursion with a base case. The base case states that when the x year given is indeed the correct result for when the sun and moon align for an eclipse, then no recursion is needed. Otherwise, if the x year given is not correct, the program will recall eclipse, which recalls align and increment x year by 1 until it reaches a correct x year. <br/>
-<br/>
-
-<img width="691" height="289" alt="logImp3" src="https://github.com/user-attachments/assets/8e1c0c41-28cc-44d3-918c-d2995acc9b16" /> <br/>
-
-To prove this, there are 2 queries made, one with the correct x year and the other with the incorrect x year. Both have the same result of 7.<br/>
-<br/>
-
-<img width="535" height="324" alt="log_test" src="https://github.com/user-attachments/assets/173513b2-1bf1-4e22-bc2e-f53e01e6eb02" /><br/>
-
-<img width="468" height="644" alt="log_test2" src="https://github.com/user-attachments/assets/09f5e889-310a-423b-82c7-3ab65fa7e2ac" /><br/>
-
-As clearly shown, the first query receives the exact data set the ICPC provides, which reaches the base case and does not have to recurse through the above declarations, but rather just verify. On the other hand, the incorrect input of x year has multiple iterations until it reaches the first correct year. For the sake of time and space, only part of the trace process will be shown for the second query.
-
-While the x year is still input, it is not like the functional program where you must provide the correct set for it to be true or false. In this solution, even if the x is provided, the program itself will figure out the correct year according to Ds, Ys, Dm, and Ym. Providing an input for x year just allows for recursion with a base case.
-
-Similar to the functional solution, the time and space complexity are both also O(n) since it similarly runs through the expressions for every possible year.
-
-While concurrency seems useful in this case considering the computations for sun and moon can be split and completed, where the results come together in the end to get x, this paradigm is much more typical with more complex processes. This problem does not need a large amount of computation power, so there is no point in using concurrency to represent a small task.
+Most importantly, considering these are two paradigms with two different algorithms, it is important to touch on their differences in time to run these. It is a small difference, but Racket takes a few more milliseconds in time to print out the distance of the shortest path. This is most likely due to the amount of functions it has to go through, sometimes recursively multiple times, in order to reach the solution. Meanwhile, Prolog simply has some conditions, two relations and two functions, so while it also recalls functions and backtracks as it goes, it does not have as much information to parse through.
 
 ## References 
 Edet, T. (2024). Declarative Programming: Achieving Effortless Software Through Logic-Based Programs (pp. 26–34). Amazon. <br/>
